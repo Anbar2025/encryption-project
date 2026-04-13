@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cipher Visualizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🔐 Cipher Visualizer</h1>
+
+  <!-- Tab Buttons -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('caesar')">Caesar</button>
+    <button class="tab" onclick="showTab('vigenere')">Vigenère</button>
+    <button class="tab" onclick="showTab('affine')">Affine</button>
+    <button class="tab" onclick="showTab('hill')">Hill</button>
+  </div>
+
+  <!-- CAESAR -->
+  <div id="caesar" class="panel active">
+    <h2>Caesar Cipher</h2>
+    <p class="desc">Shifts each letter by a fixed number. E(x) = (x + shift) mod 26</p>
+    <label>Text: <input type="text" id="c-text" placeholder="Enter text..."></label>
+    <label>Shift (0–25): <input type="number" id="c-shift" value="3" min="0" max="25"></label>
+    <div class="btns">
+      <button onclick="caesarRun('encrypt')">Encrypt</button>
+      <button onclick="caesarRun('decrypt')">Decrypt</button>
+    </div>
+    <div class="output" id="c-out">Result will appear here...</div>
+    <div class="steps" id="c-steps"></div>
+  </div>
+
+  <!-- VIGENERE -->
+  <div id="vigenere" class="panel">
+    <h2>Vigenère Cipher</h2>
+    <p class="desc">Uses a keyword. Each letter uses a different Caesar shift. E(x) = (x + key) mod 26</p>
+    <label>Text: <input type="text" id="v-text" placeholder="Enter text..."></label>
+    <label>Key: <input type="text" id="v-key" placeholder="e.g. SECRET"></label>
+    <div class="btns">
+      <button onclick="vigRun('encrypt')">Encrypt</button>
+      <button onclick="vigRun('decrypt')">Decrypt</button>
+    </div>
+    <div class="output" id="v-out">Result will appear here...</div>
+    <div class="steps" id="v-steps"></div>
+  </div>
+
+  <!-- AFFINE -->
+  <div id="affine" class="panel">
+    <h2>Affine Cipher</h2>
+    <p class="desc">E(x) = (a·x + b) mod 26 — requires gcd(a, 26) = 1</p>
+    <label>Text: <input type="text" id="a-text" placeholder="Enter text..."></label>
+    <label>Key a (coprime to 26): <input type="number" id="a-a" value="5" min="1" max="25"></label>
+    <label>Key b (0–25): <input type="number" id="a-b" value="8" min="0" max="25"></label>
+    <div class="btns">
+      <button onclick="affRun('encrypt')">Encrypt</button>
+      <button onclick="affRun('decrypt')">Decrypt</button>
+    </div>
+    <div class="output" id="a-out">Result will appear here...</div>
+    <div class="steps" id="a-steps"></div>
+  </div>
+
+  <!-- HILL -->
+  <div id="hill" class="panel">
+    <h2>Hill Cipher (2×2)</h2>
+    <p class="desc">Encrypts letter pairs using matrix multiplication mod 26</p>
+    <label>Text: <input type="text" id="h-text" placeholder="Enter text..."></label>
+    <p>Key Matrix:</p>
+    <div class="matrix-inputs">
+      <input type="number" id="h00" value="6">
+      <input type="number" id="h01" value="24">
+      <input type="number" id="h10" value="1">
+      <input type="number" id="h11" value="13">
+    </div>
+    <div class="btns">
+      <button onclick="hillRun('encrypt')">Encrypt</button>
+      <button onclick="hillRun('decrypt')">Decrypt</button>
+    </div>
+    <div class="output" id="h-out">Result will appear here...</div>
+    <div class="steps" id="h-steps"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
