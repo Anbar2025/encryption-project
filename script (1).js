@@ -18,28 +18,51 @@ function showTab(id) {
 }
 
 // ── Caesar ───────────────────────────────────────────
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function caesarEncrypt(text, shift) {
+  text = text.toUpperCase();
+  let result = "";
+  for (let i = 0; i < text.length; i++) {
+    let char = text[i];
+    if (ALPHABET.includes(char)) {
+      let index = ALPHABET.indexOf(char);
+      let newIndex = (index + shift + 26) % 26;
+      result += ALPHABET[newIndex];
+    } else {
+      result += char;
+    }
+  }
+  return result;
+}
+
+function caesarDecrypt(text, shift) {
+  return caesarEncrypt(text, -shift);
+}
+
 function caesarRun(mode) {
   const text  = document.getElementById('c-text').value;
   const shift = parseInt(document.getElementById('c-shift').value) || 0;
-  const s     = mode === 'encrypt' ? shift : -shift;
-  let result  = '';
-  let stepsHTML = '';
 
-  for (let ch of text) {
-    if (/[a-zA-Z]/.test(ch)) {
-      const upper = ch.toUpperCase();
-      const x = upper.charCodeAt(0) - 65;
-      const y = mod(x + s, 26);
-      const out = String.fromCharCode(y + (ch === upper ? 65 : 97));
-      result += out;
-      stepsHTML += `<div class="step">${upper} (${x}) → <span>${String.fromCharCode(y+65)} (${y})</span>  &nbsp; (${x} + ${mod(s,26)}) mod 26 = ${y}</div>`;
-    } else {
-      result += ch;
+  const result = mode === 'encrypt'
+    ? caesarEncrypt(text, shift)
+    : caesarDecrypt(text, shift);
+
+  // Step-by-step display
+  let stepsHTML = '';
+  const upper = text.toUpperCase();
+  for (let i = 0; i < upper.length; i++) {
+    const char = upper[i];
+    if (ALPHABET.includes(char)) {
+      const index    = ALPHABET.indexOf(char);
+      const s        = mode === 'encrypt' ? shift : -shift;
+      const newIndex = (index + s + 26) % 26;
+      stepsHTML += `<div class="step">${char} (${index}) → <span>${ALPHABET[newIndex]} (${newIndex})</span> &nbsp; (${index} + ${s} + 26) % 26 = ${newIndex}</div>`;
     }
   }
 
-  document.getElementById('c-out').textContent   = result || '—';
-  document.getElementById('c-steps').innerHTML   = stepsHTML;
+  document.getElementById('c-out').textContent = result || '—';
+  document.getElementById('c-steps').innerHTML = stepsHTML;
 }
 
 // ── Vigenère (from PDF) ───────────────────────────────
@@ -186,44 +209,77 @@ function affRun(mode) {
   document.getElementById('a-steps').innerHTML = stepsHTML;
 }
 
-// ── Hill ─────────────────────────────────────────────
+// ── Hill (3×3) ────────────────────────────────────────
+let key_matrix    = Array.from({ length: 3 }, () => Array(3).fill(0));
+let message_vector = Array.from({ length: 3 }, () => Array(1).fill(0));
+let cipher_matrix  = Array.from({ length: 3 }, () => Array(1).fill(0));
+
+function get_key_matrix(key) {
+  let k = 0;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      key_matrix[i][j] = key.charCodeAt(k) % 65;
+      k++;
+    }
+  }
+}
+
+function hillEncrypt(message_vector) {
+  for (let i = 0; i < 3; i++) {
+    cipher_matrix[i][0] = 0;
+    for (let x = 0; x < 3; x++) {
+      cipher_matrix[i][0] += key_matrix[i][x] * message_vector[x][0];
+    }
+    cipher_matrix[i][0] = cipher_matrix[i][0] % 26;
+  }
+}
+
+function hill_cipher(message, key) {
+  get_key_matrix(key);
+  for (let i = 0; i < 3; i++) {
+    message_vector[i][0] = message.charCodeAt(i) % 65;
+  }
+  hillEncrypt(message_vector);
+  let ciphertext = [];
+  for (let i = 0; i < 3; i++) {
+    ciphertext.push(String.fromCharCode(cipher_matrix[i][0] + 65));
+  }
+  return ciphertext.join("");
+}
+
 function hillRun(mode) {
   const text = document.getElementById('h-text').value.toUpperCase().replace(/[^A-Z]/g, '');
-  const m = [
-    [parseInt(document.getElementById('h00').value), parseInt(document.getElementById('h01').value)],
-    [parseInt(document.getElementById('h10').value), parseInt(document.getElementById('h11').value)]
-  ];
+  const key  = document.getElementById('h-key').value.toUpperCase().replace(/[^A-Z]/g, '');
 
-  // Check invertibility
-  const det  = mod(m[0][0]*m[1][1] - m[0][1]*m[1][0], 26);
-  const detInv = modInverse(det, 26);
-
-  if (detInv < 0) {
-    document.getElementById('h-out').textContent = 'Error: Matrix is not invertible mod 26.';
+  if (key.length !== 9) {
+    document.getElementById('h-out').textContent = 'Error: Key must be exactly 9 letters (for 3×3 matrix).';
+    return;
+  }
+  if (text.length !== 3) {
+    document.getElementById('h-out').textContent = 'Error: Message must be exactly 3 letters.';
     return;
   }
 
-  // Compute inverse matrix
-  const inv = [
-    [mod(detInv * m[1][1], 26),  mod(detInv * -m[0][1], 26)],
-    [mod(detInv * -m[1][0], 26), mod(detInv *  m[0][0], 26)]
-  ];
-
-  const key = mode === 'encrypt' ? m : inv;
-  const padded = text.length % 2 !== 0 ? text + 'X' : text;
-
-  let result = '';
-  let stepsHTML = '';
-
-  for (let i = 0; i < padded.length; i += 2) {
-    const p1 = padded[i].charCodeAt(0) - 65;
-    const p2 = padded[i+1].charCodeAt(0) - 65;
-    const c1 = mod(key[0][0]*p1 + key[0][1]*p2, 26);
-    const c2 = mod(key[1][0]*p1 + key[1][1]*p2, 26);
-    const out = String.fromCharCode(c1+65) + String.fromCharCode(c2+65);
-    result += out;
-    stepsHTML += `<div class="step">[${padded[i]},${padded[i+1]}] → <span>[${String.fromCharCode(c1+65)},${String.fromCharCode(c2+65)}]</span>  &nbsp; row1: ${key[0][0]}×${p1}+${key[0][1]}×${p2}=${c1}, row2: ${key[1][0]}×${p1}+${key[1][1]}×${p2}=${c2}</div>`;
+  // Only encrypt supported (no inverse for 3x3 in this version)
+  if (mode === 'decrypt') {
+    document.getElementById('h-out').textContent = 'Decrypt not supported for 3×3 Hill in this version.';
+    return;
   }
+
+  get_key_matrix(key);
+  const result = hill_cipher(text, key);
+
+  // Step-by-step display
+  let stepsHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const row = key_matrix[i];
+    const p0  = message_vector[0][0];
+    const p1  = message_vector[1][0];
+    const p2  = message_vector[2][0];
+    const val = cipher_matrix[i][0];
+    stepsHTML += `<div class="step">Row ${i+1}: ${row[0]}×${p0} + ${row[1]}×${p1} + ${row[2]}×${p2} mod 26 = <span>${val} → ${String.fromCharCode(val+65)}</span></div>`;
+  }
+  stepsHTML += `<div class="step">Key Matrix used: [${key_matrix.map(r => r.join(',')).join(' | ')}]</div>`;
 
   document.getElementById('h-out').textContent = result || '—';
   document.getElementById('h-steps').innerHTML = stepsHTML;

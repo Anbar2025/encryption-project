@@ -63,19 +63,12 @@
 
   <!-- HILL -->
   <div id="hill" class="panel">
-    <h2>Hill Cipher (2×2)</h2>
-    <p class="desc">Encrypts letter pairs using matrix multiplication mod 26</p>
-    <label>Text: <input type="text" id="h-text" placeholder="Enter text..."></label>
-    <p>Key Matrix:</p>
-    <div class="matrix-inputs">
-      <input type="number" id="h00" value="6">
-      <input type="number" id="h01" value="24">
-      <input type="number" id="h10" value="1">
-      <input type="number" id="h11" value="13">
-    </div>
+    <h2>Hill Cipher (3×3)</h2>
+    <p class="desc">Encrypts 3-letter blocks using 3×3 matrix multiplication mod 26</p>
+    <label>Message (exactly 3 letters): <input type="text" id="h-text" placeholder="e.g. DOG" maxlength="3"></label>
+    <label>Key (exactly 9 letters for 3×3 matrix): <input type="text" id="h-key" placeholder="e.g. YHGINUKER" maxlength="9"></label>
     <div class="btns">
       <button onclick="hillRun('encrypt')">Encrypt</button>
-      <button onclick="hillRun('decrypt')">Decrypt</button>
     </div>
     <div class="output" id="h-out">Result will appear here...</div>
     <div class="steps" id="h-steps"></div>
