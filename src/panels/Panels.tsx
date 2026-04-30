@@ -92,8 +92,8 @@ export function CaesarPanel() {
   const explainCaesar = useMemo(() => {
     if (!animStr) return null;
     if (!rev.done && rev.displayed.length === 0)
-      return "Short pause â€” then letters appear one at a time with indices and modular arithmetic.";
-    if (rev.done) return "Complete â€” full message streamed. Verify against your inputs.";
+      return "Short pause — then letters appear one at a time with indices and modular arithmetic.";
+    if (rev.done) return "Complete — full message streamed. Verify against your inputs.";
     const idx = lastVisibleCharIndex(rev.displayed.length, animStr.length);
     if (idx === null) return null;
     if (cipherAnim !== null) return explainCaesarEncrypt(encPlain, cipherAnim, idx, shift);
@@ -156,7 +156,7 @@ export function CaesarPanel() {
             setTokC((t) => t + 1);
           }}
         >
-          Encrypt â†’
+          Encrypt →
         </button>
         <button
           type="button"
@@ -168,7 +168,7 @@ export function CaesarPanel() {
             setTokP((t) => t + 1);
           }}
         >
-          â† Decrypt
+          ← Decrypt
         </button>
       </div>
 
@@ -188,14 +188,14 @@ export function CaesarPanel() {
           <ExplainStrip
             detail={explainCaesar}
             progress={(cipherAnim ? rCiph : rPlain).progress}
-            idleHint="Encrypt shifts each Aâ€“Z letter; decrypt shifts backwards."
+            idleHint="Encrypt shifts each A–Z letter; decrypt shifts backwards."
           />
         </>
       )}
 
       <div className="rounded-xl border border-[var(--border)] bg-[rgba(5,10,20,0.45)] p-4">
         <div className="text-[0.75rem] text-[var(--text-muted)] mb-2">
-          Alphabet mapping (plain â†’ cipher)
+          Alphabet mapping (plain → cipher)
         </div>
         <div className="flex flex-wrap gap-1 justify-center">
           {wheelPairs.map(({ plain: pl, cipher: ci }) => (
@@ -240,8 +240,8 @@ export function VigenerePanel() {
   const explainVig = useMemo(() => {
     if (!outAnim) return null;
     if (!rev.done && rev.displayed.length === 0)
-      return "Pause â€” then each output letter is built as (plaintext index Â± key index) mod 26 where the key repeats to full message length.";
-    if (rev.done) return "Finished â€” polyalphabetic string complete. Keyword row above shows expansion.";
+      return "Pause — then each output letter is built as (plaintext index ± key index) mod 26 where the key repeats to full message length.";
+    if (rev.done) return "Finished — polyalphabetic string complete. Keyword row above shows expansion.";
     const idx = lastVisibleCharIndex(rev.displayed.length, outAnim.length);
     if (idx === null) return null;
     return explainVigenere(upper, expKey, outAnim, idx, mode === "encrypt");
@@ -263,7 +263,7 @@ export function VigenerePanel() {
   return (
     <div className="space-y-4">
       <p className="text-[var(--text-muted)] text-[0.95rem]">
-        Keyword shifts repeat â€” polyalphabetic substitution.
+        Keyword shifts repeat — polyalphabetic substitution.
       </p>
       <label className="flex flex-col gap-1">
         <span className="field-label">Text</span>
@@ -299,7 +299,7 @@ export function VigenerePanel() {
 
       <div className="rounded-xl border border-[var(--border)] bg-[rgba(5,10,20,0.45)] p-4 overflow-x-auto">
         <div className="text-[0.75rem] text-[var(--text-muted)] mb-2">
-          {mode === "encrypt" ? "Message Â· keyword Â· ciphertext" : "Ciphertext Â· keyword Â· plaintext"}
+          {mode === "encrypt" ? "Message · keyword · ciphertext" : "Ciphertext · keyword · plaintext"}
         </div>
         <div className="text-[0.65rem] text-[var(--text-muted)] mb-1">Row A</div>
         <div className="stripe-row">
@@ -316,7 +316,7 @@ export function VigenerePanel() {
         <div className="stripe-row">
           {upper.split("").map((ch, i) => (
             <span key={i} className={`stripe-cell stripe-key ${pi === i ? "ring-2 ring-[var(--accent)] rounded" : ""}`}>
-              {ch >= "A" && ch <= "Z" ? expKey[i] : "Â·"}
+              {ch >= "A" && ch <= "Z" ? expKey[i] : "·"}
             </span>
           ))}
         </div>
@@ -336,7 +336,7 @@ export function AffinePanel() {
   const rC = useReveal(cipherAnim, tokC);
   const rP = useReveal(plainAnim, tokP);
   const valid = gcd(a, 26) === 1;
-  const hint = valid ? "" : `gcd(${a}, 26) â‰  1 â€” pick a âˆˆ {1,3,5,7,9,11,15,17,19,21,23,25}`;
+  const hint = valid ? "" : `gcd(${a}, 26) ≠ 1 — pick a ∈ {1,3,5,7,9,11,15,17,19,21,23,25}`;
 
   const plainU = plain.toUpperCase();
 
@@ -345,8 +345,8 @@ export function AffinePanel() {
     const rev = cipherAnim !== null ? rC : rP;
     if (!anim) return null;
     if (!rev.done && rev.displayed.length === 0)
-      return "Pause â€” affine applies E(x)=(aÂ·x+b) mod 26 to each letter index x.";
-    if (rev.done) return "Streaming complete â€” compare ciphertext/plaintext above.";
+      return "Pause — affine applies E(x)=(a·x+b) mod 26 to each letter index x.";
+    if (rev.done) return "Streaming complete — compare ciphertext/plaintext above.";
     const idx = lastVisibleCharIndex(rev.displayed.length, anim.length);
     if (idx === null) return null;
     if (cipherAnim !== null) return explainAffineEncrypt(plainU, cipherAnim, idx, a, b);
@@ -366,7 +366,7 @@ export function AffinePanel() {
 
   return (
     <div className="space-y-4">
-      <p className="text-[var(--text-muted)] text-[0.95rem]">E(x) = (aÂ·x + b) mod 26, with gcd(a,26) = 1.</p>
+      <p className="text-[var(--text-muted)] text-[0.95rem]">E(x) = (a·x + b) mod 26, with gcd(a,26) = 1.</p>
       {hint && <p className="text-[var(--coral)] text-sm">{hint}</p>}
       <label className="flex flex-col gap-1">
         <span className="field-label">Text (plain / cipher depending on button)</span>
@@ -424,7 +424,7 @@ export function AffinePanel() {
           <ExplainStrip
             detail={explainAff}
             progress={(cipherAnim ? rC : rP).progress}
-            idleHint="Affine maps letter indices with (aÂ·x+b) mod 26; decryption uses the modular inverse of a."
+            idleHint="Affine maps letter indices with (a·x+b) mod 26; decryption uses the modular inverse of a."
           />
         </>
       )}
@@ -436,7 +436,7 @@ export function AffinePanel() {
               key={L}
               className="font-mono text-[0.7rem] px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)]"
             >
-              {L}â†’{ALPHABET[mod26(a * i + b)]}
+              {L}→{ALPHABET[mod26(a * i + b)]}
             </span>
           ))}
         </div>
@@ -497,8 +497,8 @@ export function HillPanel() {
   const explainHill = useMemo(() => {
     if (!outAnim || !matrix) return null;
     if (!ms.done && ms.displayed.length === 0)
-      return "Pause â€” each block is a matrix Ã— column vector mod 26 (letters as 0â€“25). Padding X completes short blocks.";
-    if (ms.done) return "All blocks processed â€” ciphertext/plaintext matches the linear algebra above.";
+      return "Pause — each block is a matrix × column vector mod 26 (letters as 0–25). Padding X completes short blocks.";
+    if (ms.done) return "All blocks processed — ciphertext/plaintext matches the linear algebra above.";
     const idx = lastVisibleCharIndex(ms.displayed.length, outAnim.length);
     if (idx === null) return null;
     if (hillKind === "enc") return explainHillEncryptBlock(padded, outAnim, idx, n, matrix);
@@ -530,7 +530,7 @@ export function HillPanel() {
 
       {matrix && (
         <div>
-          <div className="text-[0.8rem] text-[var(--text-muted)] mb-2">Key matrix mod 26 Â· det â‰¡ {detMod(matrix, 26)}</div>
+          <div className="text-[0.8rem] text-[var(--text-muted)] mb-2">Key matrix mod 26 · det ≡ {detMod(matrix, 26)}</div>
           <div className="matrix-grid" style={{ gridTemplateColumns: `repeat(${matrix.length}, 1fr)` }}>
             {matrix.flatMap((row, i) =>
               row.map((v, j) => (
@@ -582,22 +582,22 @@ export function OtpPanel() {
   const explainOtpCipher = useMemo(() => {
     if (cipherTarget === null || !keyBytesRef.current) return null;
     if (!revC.done && revC.displayed.length === 0)
-      return "Pause â€” ciphertext hex streams two characters per byte (one byte at a time). Each byte equals plaintext-byte XOR key-byte.";
-    if (revC.done) return "Encrypt stream finished â€” full hex copied to the editor below.";
+      return "Pause — ciphertext hex streams two characters per byte (one byte at a time). Each byte equals plaintext-byte XOR key-byte.";
+    if (revC.done) return "Encrypt stream finished — full hex copied to the editor below.";
     return (
       explainOtpByte(plainUtf8, keyBytesRef.current, revC.displayed.length) ??
-      "Receiving next hex digitsâ€¦"
+      "Receiving next hex digits…"
     );
   }, [cipherTarget, plainUtf8, revC.displayed.length, revC.done, tokC]);
 
   const explainOtpPlain = useMemo(() => {
     if (!plainAnim) return null;
     if (!revP.done && revP.displayed.length === 0)
-      return "Pause â€” XOR inversion rebuilds UTF-8 plaintext character by character.";
-    if (revP.done) return "Decrypt stream finished â€” plaintext restored.";
+      return "Pause — XOR inversion rebuilds UTF-8 plaintext character by character.";
+    if (revP.done) return "Decrypt stream finished — plaintext restored.";
     const idx = lastVisibleCharIndex(revP.displayed.length, plainAnim.length);
     if (idx === null) return null;
-    return `Plaintext symbol ${idx + 1}/${plainAnim.length}: Â«${plainAnim[idx]}Â» â€” byte-wise XOR with the same key reverses encryption.`;
+    return `Plaintext symbol ${idx + 1}/${plainAnim.length}: «${plainAnim[idx]}» — byte-wise XOR with the same key reverses encryption.`;
   }, [plainAnim, revP.displayed.length, revP.done]);
 
   useEffect(() => {
@@ -679,7 +679,7 @@ export function OtpPanel() {
           <ExplainStrip
             detail={explainOtpCipher}
             progress={revC.progress}
-            idleHint="OTP XORs raw UTF-8 bytes â€” identical length key, never reused elsewhere."
+            idleHint="OTP XORs raw UTF-8 bytes — identical length key, never reused elsewhere."
           />
         </div>
       )}
